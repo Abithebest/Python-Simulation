@@ -1,0 +1,155 @@
+[
+    {
+        "time": 0.0003469479997875169,
+        "agents": [
+            {
+                "name": "Agent.314",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.920",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.306",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.301",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.461",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.635",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.696",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.352",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.414",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            },
+            {
+                "name": "Agent.68",
+                "hunger": 0,
+                "thirst": 0,
+                "health": 0,
+                "memory": {
+                    "food": [],
+                    "water": []
+                }
+            }
+        ],
+        "world": {
+            "width": 20,
+            "height": 20,
+            "food_sources": [
+                [
+                    15,
+                    7
+                ],
+                [
+                    2,
+                    19
+                ],
+                [
+                    17,
+                    4
+                ],
+                [
+                    13,
+                    7
+                ],
+                [
+                    4,
+                    6
+                ]
+            ],
+            "water_sources": [
+                [
+                    9,
+                    1
+                ],
+                [
+                    9,
+                    6
+                ],
+                [
+                    14,
+                    14
+                ],
+                [
+                    13,
+                    6
+                ],
+                [
+                    7,
+                    8
+                ]
+            ]
+        }
+    }
+]
