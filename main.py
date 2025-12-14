@@ -2,8 +2,12 @@ import random;
 import time;
 import matplotlib.pyplot as plt;
 import os;
+import noise;
+import numpy as np;
+import copy;
 
 from utils import *;
+from pathfind import *;
 
 start_time = time.perf_counter()
 def end_time():
@@ -13,7 +17,7 @@ def end_time():
     print(f"{Colors.GREEN}DURATION: {duration:.4f}s{Colors.ENDC}")
     return duration
 
-class Agent:
+class Agent: 
     def __init__(self, x, y):
         self.y = y
         self.x = x
@@ -22,8 +26,10 @@ class Agent:
         self.thirst = 0
         self.health = 100
         self.memory = {
-            "food": set(),
-            "water": set()
+            "pathfind": [],
+            "thought": None,
+            "food": [],
+            "water": []
         }
 
     def to_dict(self):
@@ -33,43 +39,59 @@ class Agent:
             "thirst": self.thirst,
             "health": self.health,
             "memory": {
-                "food": list(self.memory['food']),
-                "water": list(self.memory['water'])
+                "thought": self.memory['thought'],
+                "food": self.memory['food'],
+                "water": self.memory['water']
             }
         }
-        
-    def move(self, width, height):
-        if self.memory['food'] and self.hunger > 50:
-            target = random.choice(list(self.memory["food"]))
-            self.move_toward(target)
-        elif self.memory['water'] and self.thirst > 50:
-            target = random.choice(list(self.memory["water"]))
-            self.move_toward(target)
+    
+    def think(self):
+        if self.hunger > 50 and self.memory['food']:
+            self.memory['thought'] = 'food'
+        elif self.thirst > 50 and self.memory['water']:
+            self.memory['thought'] = 'water'
         else:
-            self.x += random.choice([-1, 1])
-            self.y += random.choice([-1, 1])
+            self.memory['thought'] = None
 
-        self.x = max(0, min(self.x, width - 1))
-        self.y = max(0, min(self.y, height - 1))
+        world.pathfind(self)
 
-    def move_toward(self, target):
-        target_x, target_y = target
+    def move(self):
+        path = self.memory.get('pathfind')
 
-        if self.x < target_x:
-            self.x += 1
-        elif self.x > target_x:
-            self.x -= 1
+        if not path:
+            path = world.pathfind(self)
 
-        if self.y < target_y:
-            self.y += 1
-        elif self.y > target_y:
-            self.y -= 1
+        if path:
+            dx, dy = path[0]
+
+            if len(path) == 1:
+                self.memory['pathfind'] = []
+            else:
+                del path[0]
+        else:
+            dx, dy = (0, 0)
+
+        self.x += dx
+        self.y += dy
+
+    def add_memory(self, cordinate, type):
+        if type == 'food' and cordinate not in self.memory['food']:
+            self.memory['food'].append(cordinate)
+        
+        if type == 'water' and cordinate not in self.memory['water']:
+            self.memory['water'].append(cordinate)
 
     def eat(self):
-        self.hunger = max(0, self.hunger - 30)
+        if self.memory['thought'] == 'food':
+            self.hunger = 0
+            self.memory['thought'] = None
+            #self.hunger = max(0, self.hunger - 30)
 
     def drink(self):
-        self.thirst = max(0, self.thirst - 30)
+        if self.memory['thought'] == 'water':
+            self.thirst = 0
+            self.memory['thought'] = None
+            #self.thirst = max(0, self.thirst - 30)
 
     def update(self):
         self.hunger += random.randint(0,5)
@@ -82,23 +104,6 @@ class Agent:
 
         if self.health <= 0:
             self.die()
-
-    def scan_area(self, world):
-        food_found = self.memory['food']
-        water_found = self.memory['water']
-
-        for dx in range(-1, 2):
-            for dy in range(-1, 2):
-                nx, ny = self.x + dx, self.y + dy
-
-                if 0 <= nx < world.width and 0 <= ny < world.height:
-                    if (nx, ny) in world.food_sources:
-                        food_found.add((nx, ny))
-                    if (nx, ny) in world.water_sources:
-                        water_found.add((nx, ny))
-        
-        self.memory['food'] = food_found
-        self.memory['water'] = water_found
 
     def die(self):
         cause = "Health"
@@ -113,27 +118,60 @@ class World:
     def __init__(self, width, height, num_agents):
         self.width = width
         self.height = height
-        self.agents = [Agent(random.randint(0, width-1), random.randint(0, height-1)) for _ in range(num_agents)]
-        self.food_sources = [(random.randint(0, width-1), random.randint(0, height-1)) for _ in range(5)]
-        self.water_sources = [(random.randint(0, width-1), random.randint(0, height-1)) for _ in range(5)]
+        self.num_agents = num_agents
+        self.agents = False
+        self.world = np.zeros((width, height))
 
-        print(self.food_sources)
-        print(self.water_sources)
+    def walkable_spawn(self, width, height):
+        while True:
+            x = random.randint(0, width - 1)
+            y = random.randint(0, height - 1)
+            if self.original_map[y][x][1]['walkable']:
+                return x, y
+
+    def generate_perlin(self):
+        scale = 0.06
+
+        ox = random.uniform(0, 1000)
+        oy = random.uniform(0, 1000)
+
+        for x in range(self.width):
+            for y in range(self.height):
+                self.world[y, x] = noise.pnoise2(
+                    (x + ox) * scale,
+                    (y + oy) * scale
+                )
+        
+        self.world = (self.world - self.world.min()) / (self.world.max() - self.world.min())
+        self.original_map = [
+            [classify_terrain(self.world[y][x]) for x in range(self.width)]
+            for y in range(self.height)
+        ]
+        self.Pathfinder = Pathfinder(self.original_map, self.width, self.height)
 
     def run(self):
+        self.generate_perlin()
+        self.agents = [
+            Agent(*self.walkable_spawn(self.width, self.height))
+            for _ in range(self.num_agents)
+        ]
+
         while True:
             if all(agent.health <= 0 for agent in self.agents):
                 print("All agents have died. Simulation ending.")
-                time = end_time()
+                timed = end_time()
+
+                world_map = [[cell[0] for cell in row] for row in self.original_map]
+                for row in world_map:
+                    map = ' '.join(row)
 
                 data = {
-                    "time": time,
+                    "time": timed,
                     "agents": [agent.to_dict() for agent in self.agents],
                     "world": {
                         "width": self.width,
                         "height": self.height,
-                        "food_sources": self.food_sources,
-                        "water_sources": self.water_sources
+                        "map": map
                     }
                 }
 
@@ -141,27 +179,34 @@ class World:
                 break
 
             self.step()
-
-            time.sleep(1)
+            time.sleep(0.2)
 
     def step(self):
-        world_map = [['.' for _ in range(self.width)] for _ in range(self.height)]
-
-        for food in self.food_sources:
-            world_map[food[1]][food[0]] = 'F'
-        for water in self.water_sources:
-            world_map[water[1]][water[0]] = 'W'
+        world_map = copy.deepcopy(self.original_map)
 
         for agent in self.agents:
             if agent.health > 0:
                 agent.update()
-                agent.move(self.width, self.height)
+                agent.think()
+                if len(agent.memory['pathfind']) <= 0: self.pathfind(agent)
+                agent.move()
                 self.check_resources(agent)
-                agent.scan_area(self)
-                
-                world_map[agent.y][agent.x] = 'A'
 
-        self.display_map(world_map)
+                world_map[agent.y][agent.x] = 'A'
+        
+        self.display_map([[cell[0] for cell in row] for row in world_map])
+
+    def pathfind(self, agent):
+        target = None
+        if agent.memory['thought'] == 'food':
+            target = random.choice(agent.memory['food'])
+        if agent.memory['thought'] == 'water':
+            target = random.choice(agent.memory['water'])
+
+        path = self.Pathfinder.find_path((agent.x, agent.y), target or None)
+
+        agent.memory['pathfind'] = path
+        return path
             
     def display_map(self, world_map):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -180,13 +225,22 @@ class World:
                 else:
                     agent_color = Colors.RED
 
-            print(f"{agent_color}{agent.name}{Colors.ENDC} | Hunger: {agent.hunger} | Thirst: {agent.thirst} | Health: {agent.health} | Memory: {agent.memory}")
+            print(f"{agent_color}{agent.name}{Colors.ENDC} ({agent.x},{agent.y}) | Hunger: {agent.hunger} | Thirst: {agent.thirst} | Health: {agent.health} | Memory: {agent.memory}")
 
     def check_resources(self, agent):
-        if (agent.x, agent.y) in self.food_sources:
-            agent.eat()
-        if (agent.x, agent.y) in self.water_sources:
-            agent.drink()
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                nx, ny = agent.x + dx, agent.y + dy
+
+                if 0 <= nx < self.width and 0 <= ny < self.height:
+                    type = self.original_map[ny][nx][1]['type']
+
+                    if type == 'food':
+                        agent.add_memory((nx, ny), 'food')
+                        agent.eat()
+                    if(type == 'water'):
+                        agent.add_memory((nx, ny), 'water')
+                        agent.drink()
 
 world = World(20, 20, 10)
 

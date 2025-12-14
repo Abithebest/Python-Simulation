@@ -1,0 +1,66 @@
+IDEAS:
+* Social Interactions
+    * Communication between Agents about resources
+    * Agents staying near each other
+* Traits
+    * Forgetful | Forget stuff in a certain short time
+    * Weak | Not alot of health and strength
+    * Strong | More health and strength
+    * Social | Makes more friends
+    * Gatherer | Gathers more food
+    * Healthy | Diseases dont last long
+    * Saver | Saves food and water
+    * Handy | Trys connecting a lot
+* Age
+    * Older you get the worse your health and strength gets
+    * Stamina
+    * Different speeds like 2 steps before moving
+* Food
+    * Food grows randomly not be infinite
+    * Different food buffs
+    * Inventory
+    * Can expire
+* Seasons
+    * Agents can grow their own food
+    * Winter can make agents cold and slow
+    * Summer can make agents hot and overheat
+* Territory
+    * Agents get mad at people when they take their spots or food
+    * Agents will make certain areas their own
+    * Agents can make alliances with other Agents
+* Offspring
+    * Agents reproduce giving their genes to their Offspring
+    * Female and Male agents
+    * Takes 40 steps to make a baby and is slow
+* Memory
+    * Agents remember danger and safe zones
+    * Decays over time. Effected by age.
+* Health
+    * Diseases
+        - Flu: slows down, can make others sick
+        - Cold: Mostly in cold Seasons
+    * Medicine plants
+    * Injuries from random things or fights
+* Weather
+    * Rain | Makes ground slippery but makes plants grow quicker. Mostly fall
+    * Wildfire | Makes fire spread and burns grass. Mostly Summer and spring
+    * Floods | More water in water spots
+* Terrain
+    * Mountains | Tall and many Injuries
+    * Hills | Before mountains and less Injuries
+    * Forests | Dense and takes 2 steps to move through
+* Biomes
+
+* Crafting
+
+* personalities
+
+* Trade
+
+* Predators and Prey
+
+* resources
+
+
+BUGS:
+* None from pathfind crashed 
