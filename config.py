@@ -1,0 +1,11 @@
+class Config:
+    JSON_LOG_FILE = 'loops.json'
+    WORLD_WIDTH = 20
+    WORLD_HEIGHT = 20
+    NUM_AGENTS = 1
+    MAX_STEPS = 1000
+    HUNGER_INCREASE = 1
+    HUNGER_DECREASE = 30
+    THIRST_INCREASE = 1
+    THIRST_DECREASE = 30
+    PERLIN_SCALE = 0.06

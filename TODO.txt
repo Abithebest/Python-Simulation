@@ -1,3 +1,9 @@
+* Age movement
+* Use memory in pathfinding
+
+BUGS:
+* 
+
 IDEAS:
 * Social Interactions
     * Communication between Agents about resources
@@ -60,7 +66,3 @@ IDEAS:
 * Predators and Prey
 
 * resources
-
-
-BUGS:
-* None from pathfind crashed 

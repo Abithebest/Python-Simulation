@@ -11,7 +11,7 @@ class Pathfinder:
         return (
             0 <= x < self.width and
             0 <= y < self.height and
-            self.map[y][x][1]['walkable']
+            self.map[y][x].walkable
         )
 
     def find_path(self, start, target=None):
@@ -77,7 +77,10 @@ class Pathfinder:
         queue = deque([(sx, sy)])
         came_from = {(sx, sy): None}
 
-        directions = [(1,0), (-1,0), (0,1), (0,-1)]
+        directions = [
+            (1, 0), (-1, 0), (0, 1), (0, -1),
+            (1, 1), (1, -1), (-1, 1), (-1, -1)
+        ]
 
         while queue:
             x, y = queue.popleft()
